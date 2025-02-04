@@ -869,26 +869,6 @@ int __cdecl main(int argc_ansi, char** argv_ansi)
 	// Disable the creation of a restore point
 	disable_system_restore(TRUE);
 
-	// Find if the device is plugged in
-	send_status(IC_SET_TIMEOUT_INFINITE);
-	if (hardware_id != NULL) {
-		plog("Installing driver for %s - please wait...", hardware_id);
-		b = UpdateDriverForPlugAndPlayDevicesU(NULL, hardware_id, path, INSTALLFLAG_FORCE, NULL);
-		send_status(IC_SET_TIMEOUT_DEFAULT);
-		if (b == TRUE) {
-			// Success
-			plog("driver update completed");
-			enumerate_device(device_id);
-			ret = WDI_SUCCESS;
-			goto out;
-		}
-
-		ret = process_error(GetLastError(), path);
-		if (ret != WDI_SUCCESS) {
-			goto out;
-		}
-	}
-
 	// TODO: try URL for OEMSourceMediaLocation (v2)
 	plog("Copying inf file (for the next time device is plugged) - please wait...");
 	send_status(IC_SET_TIMEOUT_INFINITE);
@@ -900,6 +880,8 @@ int __cdecl main(int argc_ansi, char** argv_ansi)
 		enumerate_device(device_id);
 		goto out;
 	}
+
+	//TODO enumerate setupDi devices and drivers and use diInstallDevice
 
 	ret = process_error(GetLastError(), path);
 	if (ret != WDI_SUCCESS) {
